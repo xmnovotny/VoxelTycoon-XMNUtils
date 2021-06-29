@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using JetBrains.Annotations;
 
 namespace XMNUtils
 {
@@ -8,6 +7,7 @@ namespace XMNUtils
     using System.IO;
     using VoxelTycoon.Tracks;
     using VoxelTycoon.UI;
+    using System.Collections.Generic;
 
     public static class GameObjectDumper
     {
@@ -26,7 +26,7 @@ namespace XMNUtils
 
         public static string DumpGameObject(GameObject gameObject)
         {
-            var stringWriter = StringWriter;
+            StringWriter stringWriter = StringWriter;
             stringWriter.GetStringBuilder().Clear();
             DumpGameObjectInternal(gameObject, stringWriter);
             return stringWriter.ToString();
@@ -58,11 +58,105 @@ namespace XMNUtils
         }
     }
 
+    public static class DictionaryUtils
+    {
+        public static void AddFloatToDict<T>(this Dictionary<T, float> dictionary, T key, float count)
+        {
+            if (!dictionary.TryGetValue(key, out float dictCount))
+            {
+                dictionary.Add(key, count);
+            }
+            else
+            {
+                dictionary[key] = dictCount + count;
+            }
+        }
+        public static void AddIntToDict<T>(this Dictionary<T, int> dictionary, T key, int count)
+        {
+            if (!dictionary.TryGetValue(key, out int dictCount))
+            {
+                dictionary.Add(key, count);
+            }
+            else
+            {
+                dictionary[key] = dictCount + count;
+            }
+        }
+    }
+
     public static class NotificationUtils
     {
         public static void ShowVehicleHint(Vehicle vehicle, string message, Color? textColor=null, Color? panelColor=null)
         {
             FloatingHint.ShowHint(message, vehicle.HeadPosition.GetValueOrDefault(), textColor.GetValueOrDefault(Color.white), new PanelColor?(new PanelColor(panelColor.GetValueOrDefault(Color.black), 0.4f)));
+        }
+    }
+
+    public class Version: IComparable<Version>, IComparable
+    {
+        private int[] parsed;
+
+        private static int[] ParseVersion([NotNull] string versionString)
+        {
+            string[] parsedStr = versionString.Split('.');
+            int[] result = new int[parsedStr.Length];
+            for (var index = 0; index < parsedStr.Length; index++)
+            {
+                result[index] = int.Parse(parsedStr[index]);
+            }
+
+            return result;
+        }
+        
+        public Version([NotNull] string versionString)
+        {
+            parsed = ParseVersion(versionString);
+        }
+
+        public Version()
+        {
+            parsed = ParseVersion(GetApplicationVersion());
+        }
+
+        public static string GetApplicationVersion()
+        {
+            return Application.version.Split(' ')[0];
+        }
+
+        public int CompareTo(string version)
+        {
+            return CompareTo(new Version(version));
+        }
+
+        public int CompareTo(Version other)
+        {
+            for (int i = 0; i < parsed.Length; i++)
+            {
+                if (other.parsed.Length <= i)
+                {
+                    return 1;
+                }
+
+                int diff = parsed[i] - other.parsed[i];
+                if (diff != 0)
+                {
+                    return diff;
+                }
+            }
+
+            if (other.parsed.Length > parsed.Length)
+            {
+                return -1;
+            }
+
+            return 0;
+        }
+
+        public int CompareTo(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return 1;
+            if (ReferenceEquals(this, obj)) return 0;
+            return obj is Version other ? CompareTo(other) : throw new ArgumentException($"Object must be of type {nameof(Version)}");
         }
     }
 }
