@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using JetBrains.Annotations;
+using VoxelTycoon.AssetManagement;
 
 namespace XMNUtils
 {
@@ -9,7 +11,7 @@ namespace XMNUtils
     using VoxelTycoon.UI;
     using System.Collections.Generic;
 
-    public static class GameObjectDumper
+    internal static class GameObjectDumper
     {
         static private StringWriter _stringWriter;
 
@@ -58,9 +60,9 @@ namespace XMNUtils
         }
     }
 
-    public static class DictionaryUtils
+    internal static class DictionaryUtils
     {
-        public static void AddFloatToDict<T>(this Dictionary<T, float> dictionary, T key, float count)
+        internal static void AddFloatToDict<T>(this Dictionary<T, float> dictionary, T key, float count)
         {
             if (!dictionary.TryGetValue(key, out float dictCount))
             {
@@ -71,7 +73,7 @@ namespace XMNUtils
                 dictionary[key] = dictCount + count;
             }
         }
-        public static void AddIntToDict<T>(this Dictionary<T, int> dictionary, T key, int count)
+        internal static void AddIntToDict<T>(this Dictionary<T, int> dictionary, T key, int count)
         {
             if (!dictionary.TryGetValue(key, out int dictCount))
             {
@@ -84,7 +86,7 @@ namespace XMNUtils
         }
     }
 
-    public static class NotificationUtils
+    internal static class NotificationUtils
     {
         public static void ShowVehicleHint(Vehicle vehicle, string message, Color? textColor=null, Color? panelColor=null)
         {
@@ -92,7 +94,7 @@ namespace XMNUtils
         }
     }
 
-    public class Version: IComparable<Version>, IComparable
+    internal class Version: IComparable<Version>, IComparable
     {
         private int[] parsed;
 
@@ -157,6 +159,14 @@ namespace XMNUtils
             if (ReferenceEquals(null, obj)) return 1;
             if (ReferenceEquals(this, obj)) return 0;
             return obj is Version other ? CompareTo(other) : throw new ArgumentException($"Object must be of type {nameof(Version)}");
+        }
+    }
+
+    internal static class ModFunctions
+    {
+        public static bool IsModInstalled(string modNamespace)
+        {
+            return EnabledPacksPerSaveHelper.GetEnabledPacks().Any(pack => pack.Name == modNamespace);
         }
     }
 }
