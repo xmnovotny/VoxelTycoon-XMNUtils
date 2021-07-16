@@ -84,6 +84,16 @@ namespace XMNUtils
                 dictionary[key] = dictCount + count;
             }
         }
+
+        internal static void SubIntFromDict<T>(this Dictionary<T, int> dictionary, T key, int count, int minLimit=int.MinValue)
+        {
+            if (!dictionary.TryGetValue(key, out int dictCount))
+                throw new InvalidOperationException("No data tu subtract from.");
+
+            if (dictCount < minLimit + count)
+                throw new InvalidOperationException("Value underflow");
+            dictionary[key] = dictCount - count;
+        }
     }
 
     internal static class NotificationUtils
@@ -167,6 +177,15 @@ namespace XMNUtils
         public static bool IsModInstalled(string modNamespace)
         {
             return EnabledPacksPerSaveHelper.GetEnabledPacks().Any(pack => pack.Name == modNamespace);
+        }
+    }
+
+    internal static class ExceptionFault
+    {
+        public static bool FaultBlock(Exception e, Action<Exception> action)
+        {
+            action?.Invoke(e);
+            return false;
         }
     }
 }
