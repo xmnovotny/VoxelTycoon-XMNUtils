@@ -94,6 +94,36 @@ namespace XMNUtils
                 throw new InvalidOperationException("Value underflow");
             dictionary[key] = dictCount - count;
         }
+
+        /** return true when the resulting value is a zero */
+        internal static bool SubIntFromDictTestZero<T>(this Dictionary<T, int> dictionary, T key, int count, int minLimit=int.MinValue)
+        {
+            if (!dictionary.TryGetValue(key, out int dictCount))
+                throw new InvalidOperationException("No data tu subtract from.");
+
+            if (dictCount < minLimit + count)
+                throw new InvalidOperationException("Value underflow");
+
+            int result = dictCount - count;
+            dictionary[key] = result;
+            return result == 0;
+        }
+        
+        internal static bool TrySubIntFromDict<T>(this Dictionary<T, int> dictionary, T key, int count, int minLimit=int.MinValue, bool removeWhenZero = false)
+        {
+            if (!dictionary.TryGetValue(key, out int dictCount))
+                return false;
+
+            if (dictCount < minLimit + count)
+                return false;
+            if (removeWhenZero && dictCount - count == 0)
+            {
+                dictionary.Remove(key);
+                return true;
+            }
+            dictionary[key] = dictCount - count;
+            return true;
+        }
     }
 
     internal static class NotificationUtils
