@@ -62,16 +62,15 @@ namespace XMNUtils
 
     internal static class DictionaryUtils
     {
-        internal static void AddFloatToDict<T>(this Dictionary<T, float> dictionary, T key, float count)
+        internal static float AddFloatToDict<T>(this Dictionary<T, float> dictionary, T key, float count)
         {
             if (!dictionary.TryGetValue(key, out float dictCount))
             {
                 dictionary.Add(key, count);
+                return count;
             }
-            else
-            {
-                dictionary[key] = dictCount + count;
-            }
+            float result = dictionary[key] = dictCount + count;
+            return result;
         }
         internal static void AddIntToDict<T>(this Dictionary<T, int> dictionary, T key, int count)
         {
